@@ -97,13 +97,13 @@
   var step = 0, panes = document.querySelectorAll('.qstep'), bars = document.querySelectorAll('.qbar span');
   var back = document.getElementById('qBack'), next = document.getElementById('qNext'), send = document.getElementById('qSend');
   var msg = document.getElementById('qMsg'), label = document.getElementById('qLabel');
-  var titles = ['Какая у вас машина', 'Что нужно сделать', 'Куда прислать расчёт'];
+  var titles = ['Какая у вас машина', 'Что нужно сделать, можно несколько', 'Куда прислать расчёт'];
   function show(i){
     step = i;
     panes.forEach(function(p, k){ p.classList.toggle('on', k === i); });
     bars.forEach(function(b, k){ b.classList.toggle('on', k <= i); });
     label.textContent = 'Шаг ' + (i + 1) + ' из 3. ' + titles[i];
-    back.hidden = i === 0; next.hidden = i === 2; send.hidden = i !== 2;
+    back.hidden = i === 0; next.hidden = i !== 1 || !recalc(); send.hidden = i !== 2;
     msg.className = 'qmsg'; msg.textContent = '';
   }
   function warn(t){ msg.className = 'qmsg on'; msg.textContent = t; }
@@ -113,6 +113,9 @@
     show(step + 1);
   });
   back.addEventListener('click', function(){ show(step - 1); });
+  /* Класс машины: выбрали и сразу дальше. Услуги можно отметить несколько, поэтому там кнопка «Узнать точную цену» */
+  document.querySelectorAll('input[name=cls]').forEach(function(r){ r.addEventListener('click', function(){ setTimeout(function(){ if (step === 0) show(1); }, 260); }); });
+  opts.addEventListener('change', function(){ if (step === 1) next.hidden = !recalc(); });
   var file = document.getElementById('photo'), files = document.getElementById('files');
   file.addEventListener('change', function(){ files.textContent = file.files.length ? 'Прикреплено фото: ' + file.files.length : ''; });
   document.getElementById('quiz').addEventListener('submit', function(e){
@@ -142,7 +145,7 @@
     polirovka: {t:'Полировка', p:P(9000), q:0, l:'Полировка снимает тонкий повреждённый слой лака. Уходят «паутинка», голограммы после моек и мутность, кузов снова глубоко отражает свет. Чтобы результат держался дольше, после полировки лак защищают керамикой или воском.', s:[['Убирает','паутинку, голограммы, мелкие царапины'],['После','защита керамикой или воском'],['На видео','BMW E34 4.6 после глубокой полировки с керамикой']]},
     bronplenka: {t:'Бронеплёнка', p:P(15000), q:2, l:'Прозрачная полиуретановая плёнка принимает удар на себя: сколы от камней, песок и реагенты остаются на ней, а не на лаке. Бывает глянцевая и матовая. Можно защитить только зоны риска или всю машину.', s:[['Защищает от','сколов, песка, реагентов'],['Варианты','зоны риска или вся машина'],['На фото','Porsche Cayenne: клеим прозрачную плёнку на перед']]},
     himchistka: {t:'Химчистка и реставрация', p:P(6000), q:1, l:'Чистим сиденья, потолок, ковры и пластик, выводим пятна и запахи. Если кожа потёрлась или треснула, восстанавливаем её или перешиваем салон целиком. Примеры в блоке «До и после», вкладка «Салон».', s:[['Химчистка',P(6000)],['Перешив салона',P(35000)],['Восстановление пластика',P(10000)]]},
-    tonirovka: {t:'Тонировка', p:P(5000), q:3, l:'Плёнка на стёкла: в салоне меньше солнца и бликов, больше приватности. Плёнку подбираем по светопропускаемости.', s:[['Стёкла','задняя полусфера, боковые, лобовое'],['Фото','<span class="todo">иллюстрация, заменим на работу студии</span>']]},
+    tonirovka: {t:'Тонировка', p:P(5000), q:3, l:'Плёнка на стёкла: в салоне меньше солнца и бликов, больше приватности. Плёнку подбираем по светопропускаемости. Тонируем и оптику: фары и задние фонари.', s:[['Стёкла','задняя полусфера, боковые, лобовое'],['Оптика','фары и задние фонари'],['На фото','Mercedes S-класс в нашей студии']]},
     poliuretan: {t:'Цветной полиуретан', p:P(15000), q:9, l:'Цветная полиуретановая плёнка меняет цвет машины и защищает лак от сколов и песка так же, как прозрачная бронеплёнка. Заводская краска остаётся под ней нетронутой.', s:[['На фото','BMW G20 целиком в цветном полиуретане VEGA PPF, сверху керамика'],['Ещё пример','Mercedes E-класс на первом экране']]},
     shumka: {t:'Шумоизоляция', p:P(15000), q:6, l:'Снимаем обшивку и сиденья, проклеиваем металл виброизоляцией и сверху шумопоглотителем. Делаем пол, арки, двери и багажник, можно по отдельности. После сборки в салоне заметно тише.', s:[['Зоны','пол, арки, двери, багажник'],['На фото','Mazda 3 в работе, Infiniti QX в «До и после»']]}
   };
@@ -181,7 +184,10 @@
       d:['Подготовка кузова и обвесов под оклейку','Полный разбор автомобиля','Оклейка целиком цветным защитным полиуретаном VEGA PPF','Нанесение керамики','Химчистка салона']},
     w213: {t:'Mercedes-Benz E-класс', s:'Целиком в цветном полиуретане, капот из настоящего карбона.', q:[9,10],
       ph:[['w213_34','Mercedes E-класс у ворот студии на закате'],['w213_front','Mercedes E-класс спереди'],['w213_rear','Задняя часть: плёнка меняет оттенок на свету'],['w213_head','Фара и капот из карбона'],['w213_carbon','Карбоновый капот крупно']],
-      d:['Оклейка кузова целиком цветным полиуретаном','Капот из настоящего карбона']}
+      d:['Оклейка кузова целиком цветным полиуретаном','Капот из настоящего карбона']},
+    gts: {t:'Porsche Cayenne GTS', s:'Затонировали фары и задние фонари плёнкой.', q:[3],
+      ph:[['gts_rear','Porsche Cayenne GTS сзади: затонированные фонари'],['gts_front','Porsche Cayenne GTS спереди: затонированные фары']],
+      d:['Тонировка фар','Тонировка задних фонарей']}
   };
   var carDlg = document.getElementById('carDlg'), gal = document.getElementById('carGal'), curCar = null;
   var cPrev = document.getElementById('carPrev'), cNext = document.getElementById('carNext'), cCnt = document.getElementById('carCnt');
@@ -216,29 +222,55 @@
   document.getElementById('carClose').addEventListener('click', closeCar);
   carDlg.addEventListener('click', function(e){ if (e.target === carDlg) closeCar(); });
 
-  /* Лента машин медленно едет сама; пауза, когда её трогают */
+  /* Лента машин: медленно едет вправо до конца, потом обратно. Без копий карточек; пауза, когда её трогают */
   var cars = document.getElementById('cars');
   if (cars && !reduce) {
-    var n = cars.children.length / 2, loop = 0, pos = 0, last = null, pauseUntil = 0;
-    function measure(){ loop = cars.children[n].offsetLeft - cars.children[0].offsetLeft; }
-    measure(); window.addEventListener('resize', measure);
-    function hold(ms){ pauseUntil = performance.now() + ms; }
-    ['pointerdown','touchstart','wheel'].forEach(function(ev){ cars.addEventListener(ev, function(){ hold(4000); }, {passive:true}); });
-    cars.addEventListener('mouseenter', function(){ pauseUntil = Infinity; });
-    cars.addEventListener('mouseleave', function(){ if (!carDlg.open) hold(600); });
-    cars.addEventListener('click', function(e){ if (e.target.closest('.is-case')) pauseUntil = Infinity; });
-    carDlg.addEventListener('close', function(){ hold(1500); });
-    (function tick(ts){
-      if (last !== null) {
-        if (ts > pauseUntil) {
-          pos += (ts - last) * 0.03;
-          if (loop > 0 && pos >= loop) pos -= loop;
-          cars.scrollLeft = pos;
-        } else { pos = cars.scrollLeft; }
-      }
-      last = ts; requestAnimationFrame(tick);
-    })(performance.now());
+    (function(){
+      var cpos = cars.scrollLeft, clast = null, cdir = 1, pauseUntil = 0, SPEED = 0.04;
+      function hold(ms){ pauseUntil = performance.now() + ms; }
+      ['pointerdown','touchstart','wheel'].forEach(function(ev){ cars.addEventListener(ev, function(){ hold(4000); }, {passive:true}); });
+      cars.addEventListener('pointerenter', function(e){ if (e.pointerType === 'mouse') pauseUntil = Infinity; });
+      cars.addEventListener('pointerleave', function(e){ if (e.pointerType === 'mouse' && !carDlg.open) hold(600); });
+      cars.addEventListener('click', function(e){ if (e.target.closest('.is-case')) pauseUntil = Infinity; });
+      carDlg.addEventListener('close', function(){ hold(1500); });
+      (function carTick(ts){
+        if (clast !== null) {
+          var max = cars.scrollWidth - cars.clientWidth;
+          if (ts > pauseUntil && max > 0) {
+            cpos += (ts - clast) * SPEED * cdir;
+            if (cpos >= max) { cpos = max; cdir = -1; hold(1800); }
+            else if (cpos <= 0) { cpos = 0; cdir = 1; hold(1800); }
+            cars.scrollLeft = cpos;
+          } else { cpos = cars.scrollLeft; }
+        }
+        clast = ts; requestAnimationFrame(carTick);
+      })(performance.now());
+    })();
   }
+
+  /* Первый экран: машины сменяют друг друга, в подписи модель и работа */
+  (function(){
+    var box = document.getElementById('heroShow'); if (!box) return;
+    var slides = box.querySelectorAll('.hs'), dots = box.querySelectorAll('.hs-dots button'), cur = 0, timer = null, vis = true, DUR = 6000;
+    function plan(){ clearTimeout(timer); if (!reduce && vis && !document.hidden) timer = setTimeout(function(){ go(cur + 1); }, DUR); }
+    function go(i){
+      slides[cur].classList.remove('on'); dots[cur].classList.remove('on');
+      cur = (i + slides.length) % slides.length;
+      slides[cur].classList.add('on'); void dots[cur].offsetWidth; dots[cur].classList.add('on');
+      slides.forEach(function(s, k){ var v = s.querySelector('video'); if (!v) return; if (k === cur && !reduce) { try { v.currentTime = 0; } catch (e) {} v.play().catch(function(){}); } else v.pause(); });
+      var nx = slides[(cur + 1) % slides.length].querySelector('img'); if (nx) nx.loading = 'eager';
+      plan();
+    }
+    dots.forEach(function(d, i){ d.addEventListener('click', function(){ go(i); }); });
+    var sx = null;
+    box.addEventListener('touchstart', function(e){ sx = e.touches[0].clientX; }, {passive:true});
+    box.addEventListener('touchend', function(e){ if (sx === null) return; var dx = e.changedTouches[0].clientX - sx; if (Math.abs(dx) > 40) go(cur + (dx < 0 ? 1 : -1)); sx = null; }, {passive:true});
+    if ('IntersectionObserver' in window) new IntersectionObserver(function(es){ vis = es[0].isIntersecting; if (vis) plan(); else clearTimeout(timer); }, {threshold: .2}).observe(box);
+    document.addEventListener('visibilitychange', function(){ if (document.hidden) clearTimeout(timer); else plan(); });
+    var n1 = slides[1] && slides[1].querySelector('img'); if (n1) n1.loading = 'eager';
+    dots[0].classList.add('on'); plan();
+  })();
+
 
   /* Видео: первый экран и полировка. При «уменьшить движение» стоит постер */
   var hv = document.getElementById('heroVid');
@@ -278,10 +310,22 @@
 
   /* До и после: вкладки Кузов / Салон / Мотор и шумка */
   var chips = document.querySelectorAll('.wchips button'), cases = document.querySelectorAll('#raboty .case');
+  var wMore = document.getElementById('wMore');
   function setCat(c){
     chips.forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.cat === c ? 'true' : 'false'); });
-    cases.forEach(function(el){ el.hidden = el.dataset.cat !== c; });
+    var lim = window.matchMedia('(min-width:900px)').matches ? 6 : 4, k = 0, extra = 0, total = 0;
+    cases.forEach(function(el){ if (el.dataset.cat === c) total++; });
+    if (total <= lim + 1) lim = total;
+    cases.forEach(function(el){
+      var inCat = el.dataset.cat === c; if (inCat) k++;
+      el.hidden = !inCat || k > lim; if (inCat && k > lim) extra++;
+    });
+    wMore.hidden = !extra; wMore.dataset.cat = c; wMore.textContent = 'Показать ещё ' + extra;
   }
+  wMore.addEventListener('click', function(){
+    cases.forEach(function(el){ if (el.dataset.cat === wMore.dataset.cat) el.hidden = false; });
+    wMore.hidden = true;
+  });
   chips.forEach(function(b){ b.addEventListener('click', function(){ setCat(b.dataset.cat); }); });
   setCat('kuzov');
   document.querySelectorAll('[data-calc]').forEach(function(a){
