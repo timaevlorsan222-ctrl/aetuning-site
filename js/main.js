@@ -215,11 +215,6 @@
   window.addEventListener('resize', function(){ if (carDlg.open) galState(); });
   document.getElementById('carClose').addEventListener('click', closeCar);
   carDlg.addEventListener('click', function(e){ if (e.target === carDlg) closeCar(); });
-  document.getElementById('carCalc').addEventListener('click', function(){
-    closeCar();
-    if (curCar) { curCar.q.forEach(function(q){ var b = document.getElementById('o' + q); if (b) b.checked = true; }); recalc(); }
-    document.getElementById('raschet').scrollIntoView({behavior: reduce ? 'auto' : 'smooth'});
-  });
 
   /* Лента машин медленно едет сама; пауза, когда её трогают */
   var cars = document.getElementById('cars');
@@ -307,10 +302,78 @@
       }, {threshold: .6}).observe(f);
     }
   });
-  var sv = document.getElementById('skyVid');
-  if (sv && !reduce && 'IntersectionObserver' in window) {
-    new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting) { sv.preload = 'auto'; sv.play().catch(function(){}); } else sv.pause(); }); }, {threshold: .15}).observe(sv);
+  /* Звёздное небо: мерцают звёзды, время от времени пролетает падающая звезда (своя область видимости, чтобы не задеть ленту машин) */
+  (function(){
+  var cv = document.getElementById('skyCv');
+  if (cv && cv.getContext) {
+    var g2 = cv.getContext('2d'), W = 0, H = 0, stars = [], shots = [], skyOn = false, last = 0, nextShot = 0;
+    var sizeSky = function(){
+      var r = cv.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2);
+      if (!r.width || !r.height) return;
+      W = r.width; H = r.height;
+      cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+      g2.setTransform(dpr, 0, 0, dpr, 0, 0);
+      stars = [];
+      var n = Math.min(260, Math.round(W * H / 7000));
+      for (var i = 0; i < n; i++) stars.push({x: Math.random() * W, y: Math.random() * H, r: .35 + Math.random() * 1.05, p: Math.random() * 6.283, s: .5 + Math.random() * 1.9, b: .3 + Math.random() * .7});
+      if (!skyOn) drawSky(0, 0);
+    };
+    var addShot = function(){
+      var dir = Math.random() < .5 ? -1 : 1, ang = (16 + Math.random() * 24) * Math.PI / 180;
+      shots.push({x: W * (.2 + Math.random() * .75), y: H * (.04 + Math.random() * .4), vx: Math.cos(ang) * dir, vy: Math.sin(ang),
+        sp: Math.max(380, W * .5) * (.8 + Math.random() * .5), len: Math.min(W * .22, 110 + Math.random() * 130), t: 0, life: .8 + Math.random() * .7});
+    };
+    var drawSky = function(ts, dt){
+      g2.clearRect(0, 0, W, H);
+      var tt = ts / 1000;
+      g2.fillStyle = '#f2f6ff';
+      for (var i = 0; i < stars.length; i++) {
+        var s = stars[i];
+        g2.globalAlpha = s.b * (.5 + .5 * Math.sin(tt * s.s + s.p));
+        g2.beginPath(); g2.arc(s.x, s.y, s.r, 0, 6.283); g2.fill();
+      }
+      g2.globalAlpha = 1;
+      for (var j = shots.length - 1; j >= 0; j--) {
+        var m = shots[j]; m.t += dt;
+        var k = m.t / m.life;
+        if (k >= 1) { shots.splice(j, 1); continue; }
+        var d = m.sp * m.t, hx = m.x + m.vx * d, hy = m.y + m.vy * d, tl = m.len * Math.min(1, k * 4);
+        var tx = hx - m.vx * tl, ty = hy - m.vy * tl, f = k < .12 ? k / .12 : Math.pow(1 - (k - .12) / .88, 1.4);
+        var gr = g2.createLinearGradient(hx, hy, tx, ty);
+        gr.addColorStop(0, 'rgba(255,255,255,' + (.95 * f) + ')');
+        gr.addColorStop(.3, 'rgba(196,216,255,' + (.42 * f) + ')');
+        gr.addColorStop(1, 'rgba(196,216,255,0)');
+        g2.strokeStyle = gr; g2.lineWidth = 1.7; g2.lineCap = 'round';
+        g2.beginPath(); g2.moveTo(hx, hy); g2.lineTo(tx, ty); g2.stroke();
+        g2.globalAlpha = f; g2.beginPath(); g2.arc(hx, hy, 1.7, 0, 6.283); g2.fillStyle = '#fff'; g2.fill(); g2.globalAlpha = 1;
+      }
+    };
+    var tick = function(ts){
+      if (!skyOn) return;
+      var dt = last ? Math.min((ts - last) / 1000, .05) : 0; last = ts;
+      if (!nextShot) nextShot = ts + 700;
+      if (ts > nextShot) { addShot(); nextShot = ts + 1600 + Math.random() * 3400; }
+      drawSky(ts, dt);
+      requestAnimationFrame(tick);
+    };
+    sizeSky();
+    if ('ResizeObserver' in window) new ResizeObserver(sizeSky).observe(cv); else window.addEventListener('resize', sizeSky);
+    if (!reduce && 'IntersectionObserver' in window) {
+      new IntersectionObserver(function(es){ es.forEach(function(e){
+        if (e.isIntersecting && !skyOn) { skyOn = true; last = 0; requestAnimationFrame(tick); }
+        else if (!e.isIntersecting) skyOn = false;
+      }); }, {threshold: .05}).observe(cv);
+    }
   }
+
+  })();
+
+  /* Не оставляем одно слово на последней строке абзаца */
+  document.querySelectorAll('.sec-head p, .lead, .kz-note, .cb-t p, .sky-text p, .xcard p, .foot p, .want').forEach(function(p){
+    var w = document.createTreeWalker(p, NodeFilter.SHOW_TEXT), n, lastN = null;
+    while ((n = w.nextNode())) if (n.nodeValue.trim()) lastN = n;
+    if (lastN) lastN.nodeValue = lastN.nodeValue.replace(/ (\S+\s*)$/, ' $1');
+  });
 
   show(0);
 })();
