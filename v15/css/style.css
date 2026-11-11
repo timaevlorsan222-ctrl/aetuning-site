@@ -1225,5 +1225,33 @@ html.menu-open{overflow:hidden}
   .classes .opt label{min-height:164px}
 }
 
+/* ===== Блок 7: чёрное небо без цветного фото ===== */
+.sky-bg{background:radial-gradient(120% 80% at 70% 20%,#0d0f14 0%,#06070a 55%,#040506 100%)}
+.sky-bg::before{display:none !important}
+
+/* ===== Контакты: своя карта ===== */
+.amap{position:relative;overflow:hidden;aspect-ratio:4/3;background:#16181a;box-shadow:0 18px 40px rgba(0,0,0,.45),inset 0 0 0 1px rgba(255,255,255,.06);clip-path:polygon(0 0,calc(100% - 18px) 0,100% 18px,100% 100%,0 100%)}
+.amap-map{position:absolute;inset:0;opacity:0;transition:opacity .6s ease}
+.amap.ready .amap-map{opacity:1}
+.amap-ph{position:absolute;inset:0;display:grid;place-items:center;background-color:#16181a;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:44px 44px;transition:opacity .6s ease}
+.amap.ready .amap-ph{opacity:0;pointer-events:none}
+.ae-pin{position:relative;display:grid;place-items:center;width:54px;height:54px;border-radius:50%;background:linear-gradient(180deg,#f3f5f6,#b8bec4 46%,#e6e9eb 54%,#8e959c);box-shadow:0 8px 22px rgba(0,0,0,.6),inset 0 1px 0 #fff}
+.ae-pin svg{width:34px;height:auto}
+.ae-pin::after{content:"";position:absolute;inset:-7px;border-radius:50%;border:2px solid rgba(232,235,238,.7);opacity:0;animation:aePing 2.4s ease-out infinite}
+@keyframes aePing{0%{opacity:.8;transform:scale(.8)}100%{opacity:0;transform:scale(1.7)}}
+@media (prefers-reduced-motion:reduce){ .ae-pin::after{animation:none} }
+.amap .ymap-chip{z-index:3}
+@media (max-width:759px){ .amap{aspect-ratio:auto;height:320px} }
+/* кнопки и подписи карты в цветах сайта */
+.amap .maplibregl-ctrl-group{background:rgba(22,24,26,.92);border-radius:0;box-shadow:0 4px 14px rgba(0,0,0,.45)}
+.amap .maplibregl-ctrl-group button{width:36px;height:36px}
+.amap .maplibregl-ctrl-group button+button{border-top:1px solid rgba(255,255,255,.08)}
+.amap .maplibregl-ctrl-icon{filter:invert(1) brightness(.85)}
+.amap .maplibregl-ctrl-attrib{background:rgba(22,24,26,.8);color:#8b939b}
+.amap .maplibregl-ctrl-attrib a{color:#b5babf}
+.amap .maplibregl-ctrl-attrib.maplibregl-compact{background:rgba(22,24,26,.85)}
+.amap .maplibregl-ctrl-attrib-button{filter:invert(1)}
+.amap .maplibregl-cooperative-gesture-screen{background:rgba(10,11,12,.6);font-family:var(--body);font-size:15px;font-weight:600}
+
 .yw-frame{padding:0;min-height:0;background:#fff;overflow:hidden}
 .yw-frame iframe{height:640px}

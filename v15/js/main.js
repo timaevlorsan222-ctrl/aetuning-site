@@ -488,13 +488,90 @@
     lb.addEventListener('touchend', function(e){ if (lx === null) return; var dx = e.changedTouches[0].clientX - lx; if (Math.abs(dx) > 40) lbShow(lbI + (dx < 0 ? 1 : -1)); lx = null; }, {passive: true});
   }
 
-  /* ===== Карта: включается по нажатию, чтобы страница листалась без помех ===== */
-  document.querySelectorAll('.ymap').forEach(function(m){
-    var cover = m.querySelector('.ymap-cover');
-    cover.addEventListener('click', function(){ m.classList.add('live'); });
-    m.addEventListener('mouseleave', function(){ m.classList.remove('live'); });
-    if ('IntersectionObserver' in window) new IntersectionObserver(function(es){ if (!es[0].isIntersecting) m.classList.remove('live'); }).observe(m);
-  });
+  /* ===== Карта: своя тёмная, грузится, только когда блок контактов близко ===== */
+  var mapBox = document.getElementById('aeMapBox');
+  if (mapBox) {
+    var MAPLIB = '../vendor/maplibre/';
+    var MAP_STYLE = {
+  "version": 8,
+  "glyphs": "https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf",
+  "sources": { "omt": { "type": "vector", "url": "https://tiles.openfreemap.org/planet" } },
+  "layers": [
+    { "id": "bg", "type": "background", "paint": { "background-color": "#16181a" } },
+    { "id": "landuse", "type": "fill", "source": "omt", "source-layer": "landuse",
+      "filter": ["in", ["get", "class"], ["literal", ["residential", "suburb", "neighbourhood", "commercial", "industrial", "retail", "garages"]]],
+      "paint": { "fill-color": "#1a1c1f" } },
+    { "id": "green", "type": "fill", "source": "omt", "source-layer": "landcover",
+      "filter": ["in", ["get", "class"], ["literal", ["wood", "grass", "farmland", "scrub", "wetland"]]],
+      "paint": { "fill-color": "#1a1f1d" } },
+    { "id": "park", "type": "fill", "source": "omt", "source-layer": "park", "paint": { "fill-color": "#1a1f1d" } },
+    { "id": "water", "type": "fill", "source": "omt", "source-layer": "water", "paint": { "fill-color": "#0e1216" } },
+    { "id": "waterway", "type": "line", "source": "omt", "source-layer": "waterway",
+      "paint": { "line-color": "#1c232a", "line-width": ["interpolate", ["linear"], ["zoom"], 12, 0.8, 17, 3] } },
+    { "id": "building", "type": "fill", "source": "omt", "source-layer": "building", "minzoom": 13,
+      "paint": { "fill-color": "#202327", "fill-outline-color": "#2c3035" } },
+    { "id": "rail", "type": "line", "source": "omt", "source-layer": "transportation",
+      "filter": ["==", ["get", "class"], "rail"],
+      "paint": { "line-color": "#30353b", "line-width": 1.2, "line-dasharray": [3, 3] } },
+    { "id": "road-minor", "type": "line", "source": "omt", "source-layer": "transportation",
+      "filter": ["in", ["get", "class"], ["literal", ["minor", "service", "track"]]],
+      "layout": { "line-cap": "round", "line-join": "round" },
+      "paint": { "line-color": "#2a2e33", "line-width": ["interpolate", ["exponential", 1.5], ["zoom"], 12, 0.5, 14, 1.4, 17, 7] } },
+    { "id": "road-major-case", "type": "line", "source": "omt", "source-layer": "transportation",
+      "filter": ["in", ["get", "class"], ["literal", ["primary", "secondary", "tertiary", "trunk", "motorway"]]],
+      "layout": { "line-cap": "round", "line-join": "round" },
+      "paint": { "line-color": "#0d0f11", "line-width": ["interpolate", ["exponential", 1.5], ["zoom"], 10, 1.6, 14, 6, 17, 18] } },
+    { "id": "road-major", "type": "line", "source": "omt", "source-layer": "transportation",
+      "filter": ["in", ["get", "class"], ["literal", ["primary", "secondary", "tertiary"]]],
+      "layout": { "line-cap": "round", "line-join": "round" },
+      "paint": { "line-color": "#3c4249", "line-width": ["interpolate", ["exponential", 1.5], ["zoom"], 10, 0.8, 14, 3.6, 17, 13] } },
+    { "id": "road-trunk", "type": "line", "source": "omt", "source-layer": "transportation",
+      "filter": ["in", ["get", "class"], ["literal", ["trunk", "motorway"]]],
+      "layout": { "line-cap": "round", "line-join": "round" },
+      "paint": { "line-color": "#5a6269", "line-width": ["interpolate", ["exponential", 1.5], ["zoom"], 10, 1, 14, 4.2, 17, 15] } },
+    { "id": "road-label", "type": "symbol", "source": "omt", "source-layer": "transportation_name", "minzoom": 13,
+      "filter": ["in", ["get", "class"], ["literal", ["primary", "secondary", "tertiary", "trunk", "motorway", "minor"]]],
+      "layout": { "symbol-placement": "line", "text-field": ["coalesce", ["get", "name:ru"], ["get", "name"]], "text-font": ["Noto Sans Regular"],
+                  "text-size": ["interpolate", ["linear"], ["zoom"], 13, 10, 17, 13], "text-letter-spacing": 0.04 },
+      "paint": { "text-color": "#8d959d", "text-halo-color": "#16181a", "text-halo-width": 1.4 } },
+    { "id": "place-label", "type": "symbol", "source": "omt", "source-layer": "place",
+      "filter": ["in", ["get", "class"], ["literal", ["suburb", "neighbourhood", "quarter", "village", "hamlet", "town"]]],
+      "layout": { "text-field": ["coalesce", ["get", "name:ru"], ["get", "name"]], "text-font": ["Noto Sans Regular"], "text-size": 12,
+                  "text-transform": "uppercase", "text-letter-spacing": 0.14 },
+      "paint": { "text-color": "#6c747c", "text-halo-color": "#16181a", "text-halo-width": 1.2 } }
+  ]
+};
+    var AE = [30.293096, 60.067030];
+    var initMap = function(){
+      try {
+        var map = new maplibregl.Map({
+          container: 'aeMap', style: MAP_STYLE, center: AE, zoom: 15.2, minZoom: 10, maxZoom: 18,
+          attributionControl: {compact: true}, cooperativeGestures: true, dragRotate: false, pitchWithRotate: false, touchPitch: false,
+          locale: {
+            'CooperativeGesturesHandler.WindowsHelpText': 'Чтобы приблизить карту, крутите колесо с зажатым Ctrl',
+            'CooperativeGesturesHandler.MacHelpText': 'Чтобы приблизить карту, крутите колесо с зажатой ⌘',
+            'CooperativeGesturesHandler.MobileHelpText': 'Двигайте карту двумя пальцами',
+            'NavigationControl.ZoomIn': 'Приблизить', 'NavigationControl.ZoomOut': 'Отдалить'
+          }
+        });
+        map.touchZoomRotate.disableRotation();
+        map.addControl(new maplibregl.NavigationControl({showCompass: false}), 'top-right');
+        var pin = document.createElement('div'); pin.className = 'ae-pin';
+        pin.innerHTML = '<svg viewBox="1030 595 820 325" aria-hidden="true"><use href="#aeG" fill="#111"/></svg>';
+        new maplibregl.Marker({element: pin, anchor: 'center'}).setLngLat(AE).addTo(map);
+        map.on('load', function(){ mapBox.classList.add('ready'); });
+      } catch (e) {}
+    };
+    var loadMap = function(){
+      if (loadMap.done) return; loadMap.done = true;
+      var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = MAPLIB + 'maplibre-gl.css'; document.head.appendChild(l);
+      var sc = document.createElement('script'); sc.src = MAPLIB + 'maplibre-gl.js'; sc.onload = initMap; document.head.appendChild(sc);
+    };
+    if ('IntersectionObserver' in window) {
+      var mio = new IntersectionObserver(function(es){ if (es[0].isIntersecting) { loadMap(); mio.disconnect(); } }, {rootMargin: '900px 0px'});
+      mio.observe(mapBox);
+    } else loadMap();
+  }
   chips.forEach(function(b){ b.addEventListener('click', function(){ setCat(b.dataset.cat); }); });
   setCat('kuzov');
   document.querySelectorAll('[data-calc]').forEach(function(a){
@@ -527,8 +604,8 @@
       cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
       g2.setTransform(dpr, 0, 0, dpr, 0, 0);
       stars = [];
-      var n = Math.min(260, Math.round(W * H / 7000));
-      for (var i = 0; i < n; i++) stars.push({x: Math.random() * W, y: Math.random() * H, r: .35 + Math.random() * 1.05, p: Math.random() * 6.283, s: .5 + Math.random() * 1.9, b: .3 + Math.random() * .7});
+      var n = Math.min(520, Math.round(W * H / 2400));
+      for (var i = 0; i < n; i++) stars.push({x: Math.random() * W, y: Math.random() * H, r: Math.random() < .07 ? 1.1 + Math.random() * .8 : .25 + Math.random() * .75, p: Math.random() * 6.283, s: .5 + Math.random() * 1.9, b: .3 + Math.random() * .7});
       if (!skyOn) drawSky(0, 0);
     };
     var addShot = function(){
@@ -544,6 +621,7 @@
         var s = stars[i];
         g2.globalAlpha = s.b * (.5 + .5 * Math.sin(tt * s.s + s.p));
         g2.beginPath(); g2.arc(s.x, s.y, s.r, 0, 6.283); g2.fill();
+        if (s.r > 1) { g2.globalAlpha *= .18; g2.beginPath(); g2.arc(s.x, s.y, s.r * 3.2, 0, 6.283); g2.fill(); }
       }
       g2.globalAlpha = 1;
       for (var j = shots.length - 1; j >= 0; j--) {
@@ -565,7 +643,7 @@
       if (!skyOn) return;
       var dt = last ? Math.min((ts - last) / 1000, .05) : 0; last = ts;
       if (!nextShot) nextShot = ts + 700;
-      if (ts > nextShot) { addShot(); nextShot = ts + 1600 + Math.random() * 3400; }
+      if (ts > nextShot) { addShot(); nextShot = ts + 1100 + Math.random() * 2600; }
       drawSky(ts, dt);
       requestAnimationFrame(tick);
     };

@@ -535,7 +535,6 @@
 
 <section class="sky" id="salon">
   <div class="sky-bg" aria-hidden="true">
-    <picture><source media="(min-width:600px)" srcset="../img/sky.jpg"><img src="../img/sky_m.jpg" alt="" width="900" height="1125" loading="lazy"></picture>
     <canvas id="skyCv"></canvas>
   </div>
   <div class="wrap">
@@ -657,9 +656,9 @@
         <a class="btn btn-ghost" href="https://t.me/aetun1ng" target="_blank" rel="noopener"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M21.4 4.2 2.9 11.3c-1 .4-1 1.6.1 1.9l4.6 1.4 1.8 5.5c.2.7 1.1.9 1.6.4l2.6-2.4 4.8 3.5c.6.4 1.4.1 1.6-.6l3.3-15.4c.2-.9-.7-1.7-1.6-1.3zM9.6 14.4l-.4 3.7-1.2-3.9 9.6-6.3z"/></svg>Telegram</a>
       </div>
     </div>
-    <div class="ymap">
-      <iframe src="https://yandex.ru/map-widget/v1/?ll=30.293096%2C60.067030&amp;z=15&amp;pt=30.293096%2C60.067030%2Cpm2rdl" title="Карта: AE Tuning, Выборгское шоссе, 200Б" loading="lazy" allowfullscreen></iframe>
-      <button class="ymap-cover" type="button" aria-label="Включить карту, чтобы двигать и приближать"><span>Нажмите, чтобы двигать карту</span></button>
+    <div class="amap" id="aeMapBox">
+      <div class="amap-ph" aria-hidden="true"><span class="ae-pin"><svg viewBox="1030 595 820 325" aria-hidden="true"><use href="#aeG" fill="#111"/></svg></span></div>
+      <div class="amap-map" id="aeMap" role="region" aria-label="Карта: AE Tuning, Выборгское шоссе, 200Б"></div>
       <a class="ymap-chip js-route" href="https://yandex.ru/maps/?rtext=~60.067030%2C30.293096&amp;rtt=auto" target="_blank" rel="noopener"><b>AE Tuning</b><span>Выборгское шоссе, 200Б · 3,1 км от метро «Парнас»</span><em>Маршрут в Навигаторе</em></a>
     </div>
   </div>
