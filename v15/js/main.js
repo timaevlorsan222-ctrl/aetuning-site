@@ -394,9 +394,11 @@
     var svcVideo = function(){ cfSvc.querySelectorAll('video').forEach(function(v){ if (!reduce && svcIn && v.closest('.svc-row') === svcAct) { v.preload = 'auto'; v.play().catch(function(){}); } else v.pause(); }); };
     makeCF(cfSvc, {
       size: function(W){
-        if (W < 600) { var wa = Math.round(Math.min(W * .78, 340)); return {wa: wa, ha: Math.round(wa * 1.42), wn: Math.round(wa * .42), hn: Math.round(wa * 1.42 * .78), gap: 8}; }
-        if (W < 1000) return {wa: 340, ha: 450, wn: 150, hn: 350, gap: 10};
-        return {wa: 390, ha: 510, wn: 170, hn: 390, gap: 12};
+        /* высота = фото 4:3 + панель с текстом */
+        var wa, ih = W < 600 ? 196 : 206, ha;
+        if (W < 600) { wa = Math.round(Math.min(W * .8, 340)); ha = Math.round(wa * .75) + ih; return {wa: wa, ha: ha, wn: Math.round(wa * .42), hn: Math.round(ha * .78), gap: 8}; }
+        wa = W < 1000 ? 360 : 400; ha = Math.round(wa * .75) + ih;
+        return {wa: wa, ha: ha, wn: W < 1000 ? 150 : 170, hn: Math.round(ha * .78), gap: W < 1000 ? 10 : 12};
       },
       change: function(c){ svcAct = c; svcVideo(); }
     });

@@ -1019,7 +1019,6 @@ html.menu-open{overflow:hidden}
 
 /* --- Шапка: кнопка меню --- */
 .top nav{display:none !important}
-@media (min-width:1280px){ .top nav{display:flex !important} }
 .burger{display:inline-flex;align-items:center;gap:10px;flex:none;height:42px;padding:0 13px 0 12px;border:0;cursor:pointer;color:var(--paper);font:600 12px/1 var(--body);letter-spacing:.14em;text-transform:uppercase;background:linear-gradient(180deg,#41464b,#25282b);box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 4px 12px rgba(0,0,0,.35);clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,0 100%);transition:background .2s}
 .burger:hover{background:linear-gradient(180deg,#4b5157,#2c2f33)}
 .burger .bl{position:relative;width:20px;height:12px}
@@ -1093,19 +1092,21 @@ html.menu-open{overflow:hidden}
 .cf-dots .on i{width:26px;background:#e8ebee}
 @media (prefers-reduced-motion:reduce){ .cf-track,.cf-track > *{transition:none} }
 
-/* Услуги в карусели */
-.cf-svc .svc-row{position:relative;display:block;padding:0;border:0;overflow:hidden;background:#0d0e0f;clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,0 100%)}
+/* Услуги в карусели: фото работы сверху целиком, текст на панели под ним */
+.cf-svc{--ih:196px}
+.cf-svc .svc-row{position:relative;display:block;padding:0;border:0;overflow:hidden;background:#141618;clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,0 100%)}
 .cf-svc .svc-row::before,.cf-svc .svc-row::after{display:none}
-.cf-svc .svc-row .pic{position:absolute;inset:0;place-self:stretch;width:auto;height:auto;aspect-ratio:auto !important;margin:0;transform:none;box-shadow:none;clip-path:none}
+.cf-svc .svc-row .pic{position:absolute;left:0;right:0;top:0;bottom:0;place-self:stretch;width:auto;height:auto;aspect-ratio:auto !important;margin:0;transform:none;box-shadow:none;clip-path:none;transition:bottom .65s cubic-bezier(.22,.7,.2,1)}
+.cf-svc .svc-row.on .pic{bottom:var(--ih)}
 .cf-svc .svc-row .pic img,.cf-svc .svc-row .pic video{display:block;width:100%;height:100%;max-width:none;aspect-ratio:auto !important;object-fit:cover}
-.cf-svc .svc-row .info{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;gap:8px;padding:56px 18px 18px;background:linear-gradient(180deg,rgba(10,11,12,0) 0%,rgba(10,11,12,.8) 30%,rgba(10,11,12,.95) 100%);opacity:0;transform:translateY(14px);transition:opacity .45s ease .2s,transform .45s ease .2s}
+.cf-svc .svc-row .info{position:absolute;left:0;right:0;bottom:0;height:var(--ih);display:flex;flex-direction:column;gap:7px;padding:16px 18px 18px;background:linear-gradient(180deg,#1e2124 0%,#151719 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.1);opacity:0;transform:translateY(16px);transition:opacity .4s ease .25s,transform .4s ease .25s}
 .cf-svc .svc-row.on .info{opacity:1;transform:none}
-.cf-svc .svc-row h3{margin:0;font-size:30px;line-height:1;letter-spacing:0;text-align:left;align-self:flex-start}
-.cf-svc .svc-row .price{margin:0;font-size:24px;text-align:left;align-self:flex-start}
-.cf-svc .svc-row .desc{margin:0;font-size:14.5px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cf-svc .svc-row h3{margin:0;font-size:26px;line-height:1.02;letter-spacing:0;text-align:left;align-self:flex-start}
+.cf-svc .svc-row .price{margin:0;font-size:22px;text-align:left;align-self:flex-start}
+.cf-svc .svc-row .desc{margin:0;font-size:14px;line-height:1.45;color:#b9bec3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .cf-svc .svc-row .spec{display:none}
-.cf-svc .svc-row .more{margin-top:4px}
-@media (min-width:600px){ .cf-svc .svc-row h3{font-size:34px} .cf-svc .svc-row .info{padding:90px 22px 22px} }
+.cf-svc .svc-row .more{margin-top:auto}
+@media (min-width:600px){ .cf-svc{--ih:206px} .cf-svc .svc-row h3{font-size:30px} .cf-svc .svc-row .info{padding:18px 22px 20px} }
 
 /* До и после в карусели */
 .cf-cases .case{position:relative;display:block;margin:0;overflow:hidden;background:#0d0e0f}
