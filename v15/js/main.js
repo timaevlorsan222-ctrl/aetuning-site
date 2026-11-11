@@ -73,7 +73,7 @@
   var items = [
     ['Полировка кузова', 9000], ['Химчистка салона', 6000], ['Бронеплёнка', 15000], ['Тонировка', 5000],
     ['Антихром', 4000], ['Полировка стёкол', 7000], ['Шумоизоляция', 15000], ['Звёздное небо', 20000],
-    ['Удаление вмятин', 2500], ['Цветной полиуретан', 15000], ['Карбон', 40000], ['Локальный ремонт ЛКП', 5000]
+    ['Удаление вмятин', 2500], ['Цветной полиуретан', 15000], ['Карбон', 40000], ['Локальная покраска', 5000]
   ];
   /* Цены: четырёхзначные без пробела (9000), пятизначные с неразрывным (15 000), знак рубля тише числа */
   var fmt = function(n){ var s = n < 10000 ? String(n) : String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0'); return s + '\u00a0<span class="rub">₽</span>'; };
@@ -97,7 +97,7 @@
   var step = 0, panes = document.querySelectorAll('.qstep'), bars = document.querySelectorAll('.qbar span');
   var back = document.getElementById('qBack'), next = document.getElementById('qNext'), send = document.getElementById('qSend');
   var msg = document.getElementById('qMsg'), label = document.getElementById('qLabel');
-  var titles = ['Какая у вас машина', 'Что нужно сделать, можно несколько', 'Куда прислать расчёт'];
+  var titles = ['Какая у вас машина', 'Что сделать', 'Куда прислать расчёт'];
   function show(i){
     step = i;
     panes.forEach(function(p, k){ p.classList.toggle('on', k === i); });
@@ -459,6 +459,42 @@
       mSecs.forEach(function(s){ if (s) spy.observe(s); });
     }
   }
+
+  /* ===== Фото на весь экран (примеры звёздного неба) ===== */
+  var lb = document.getElementById('lbDlg');
+  if (lb) {
+    var lbImg = document.getElementById('lbImg'), lbCap = document.getElementById('lbCap'), lbNum = document.getElementById('lbNum'), lbSet = [], lbI = 0;
+    var lbShow = function(k){
+      lbI = (k + lbSet.length) % lbSet.length; var b = lbSet[lbI];
+      lbImg.src = b.dataset.src; lbImg.alt = b.dataset.cap; lbCap.textContent = b.dataset.cap;
+      lbNum.textContent = lbSet.length > 1 ? (lbI + 1) + ' / ' + lbSet.length : '';
+      lb.classList.toggle('single', lbSet.length < 2);
+    };
+    document.querySelectorAll('[data-lb]').forEach(function(b){
+      b.addEventListener('click', function(){
+        lbSet = [].slice.call(document.querySelectorAll('[data-lb="' + b.dataset.lb + '"]'));
+        lbShow(lbSet.indexOf(b));
+        if (lb.showModal) lb.showModal(); else lb.setAttribute('open', '');
+      });
+    });
+    var lbClose = function(){ if (lb.close) lb.close(); else lb.removeAttribute('open'); };
+    lb.querySelector('.lb-x').addEventListener('click', lbClose);
+    lb.querySelector('.prev').addEventListener('click', function(){ lbShow(lbI - 1); });
+    lb.querySelector('.next').addEventListener('click', function(){ lbShow(lbI + 1); });
+    lb.addEventListener('click', function(e){ if (e.target === lb) lbClose(); });
+    lb.addEventListener('keydown', function(e){ if (e.key === 'ArrowLeft') lbShow(lbI - 1); else if (e.key === 'ArrowRight') lbShow(lbI + 1); });
+    var lx = null;
+    lb.addEventListener('touchstart', function(e){ lx = e.touches[0].clientX; }, {passive: true});
+    lb.addEventListener('touchend', function(e){ if (lx === null) return; var dx = e.changedTouches[0].clientX - lx; if (Math.abs(dx) > 40) lbShow(lbI + (dx < 0 ? 1 : -1)); lx = null; }, {passive: true});
+  }
+
+  /* ===== Карта: включается по нажатию, чтобы страница листалась без помех ===== */
+  document.querySelectorAll('.ymap').forEach(function(m){
+    var cover = m.querySelector('.ymap-cover');
+    cover.addEventListener('click', function(){ m.classList.add('live'); });
+    m.addEventListener('mouseleave', function(){ m.classList.remove('live'); });
+    if ('IntersectionObserver' in window) new IntersectionObserver(function(es){ if (!es[0].isIntersecting) m.classList.remove('live'); }).observe(m);
+  });
   chips.forEach(function(b){ b.addEventListener('click', function(){ setCat(b.dataset.cat); }); });
   setCat('kuzov');
   document.querySelectorAll('[data-calc]').forEach(function(a){

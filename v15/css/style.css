@@ -1153,5 +1153,77 @@ html.menu-open{overflow:hidden}
   .xcard.xcta img.ico{grid-row:1/3}
 }
 
+/* ===== Блок 7: небо на фоне всего блока ===== */
+.sky-bg{z-index:0}
+.sky .sky-bg canvas{z-index:2}
+.sky .wrap{z-index:3}
+@media (max-width:899px){
+  .sky{padding:72px 0 64px}
+  .sky-bg{position:absolute;inset:0;aspect-ratio:auto !important;-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 8%,#000 90%,transparent 100%);mask-image:linear-gradient(180deg,transparent 0,#000 8%,#000 90%,transparent 100%)}
+  .sky-bg::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(7,8,10,.25) 0%,rgba(7,8,10,.5) 30%,rgba(7,8,10,.72) 60%,rgba(7,8,10,.82) 100%)}
+  .sky-bg img{object-position:62% 30%}
+  .sky .wrap{margin-top:0 !important}
+}
+/* примеры работ крупнее, открываются на весь экран */
+.sky-real{grid-template-columns:1fr;gap:10px;max-width:none}
+.sky-ph{position:relative;display:block;width:100%;aspect-ratio:16/10;padding:0;border:0;overflow:hidden;cursor:zoom-in;background:#111;box-shadow:0 12px 28px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.08)}
+.sky-ph img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .5s ease}
+.sky-ph:hover img{transform:scale(1.04)}
+.sky-ph .zoom{position:absolute;right:10px;bottom:10px;display:grid;place-items:center;width:38px;height:38px;color:var(--paper);background:rgba(14,15,17,.78);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.sky-ph .zoom svg{width:20px;height:20px}
+@media (min-width:600px){ .sky-real{grid-template-columns:1fr 1fr;max-width:560px} .sky-ph{aspect-ratio:4/3} }
+
+/* окно с фото */
+.lb{width:100vw;height:100dvh;max-width:none;max-height:none;margin:0;padding:0;border:0;background:rgba(6,7,8,.96);color:var(--paper)}
+.lb::backdrop{background:rgba(0,0,0,.7)}
+.lb[open]{display:grid;place-items:center}
+.lb-fig{margin:0;display:grid;gap:12px;justify-items:center;max-width:min(1200px,94vw);padding:0 8px}
+.lb-fig img{max-width:100%;max-height:78dvh;object-fit:contain;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.lb-fig figcaption{font-size:14px;color:#b5babf;text-align:center}
+.lb-x{position:fixed;top:calc(12px + env(safe-area-inset-top));right:12px;width:46px;height:46px;display:grid;place-items:center;border:0;cursor:pointer;color:var(--paper);background:linear-gradient(180deg,#41464b,#25282b);clip-path:polygon(0 0,calc(100% - 9px) 0,100% 9px,100% 100%,0 100%)}
+.lb-x svg,.lb-arr svg{width:22px;height:22px}
+.lb-arr{position:fixed;top:50%;width:46px;height:46px;margin-top:-23px;display:grid;place-items:center;border:0;cursor:pointer;color:var(--paper);background:rgba(30,32,35,.85);clip-path:polygon(0 0,calc(100% - 9px) 0,100% 9px,100% 100%,0 100%)}
+.lb-arr.prev{left:10px}.lb-arr.next{right:10px}
+.lb.single .lb-arr{display:none}
+.lb-num{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));transform:translateX(-50%);font-size:13px;font-weight:600;letter-spacing:.12em;color:var(--mute)}
+
+/* ===== Расчёт: карточки одинаковой высоты ===== */
+.classes,.opts{grid-auto-rows:1fr}
+.classes .opt,.opts .opt{display:grid}
+.classes .opt label,.opts .opt label{height:100%;box-sizing:border-box}
+.opts .opt label{justify-content:center}
+
+/* ===== Контакты: настоящая карта ===== */
+.ymap{position:relative;overflow:hidden;aspect-ratio:4/3;background:#1b1d20;box-shadow:0 18px 40px rgba(0,0,0,.45),inset 0 0 0 1px rgba(255,255,255,.06);clip-path:polygon(0 0,calc(100% - 18px) 0,100% 18px,100% 100%,0 100%)}
+.ymap iframe{position:absolute;inset:0;width:100%;height:100%;border:0;filter:invert(.9) hue-rotate(180deg) saturate(.6) brightness(.95) contrast(.92)}
+.ymap-cover{position:absolute;inset:0;z-index:2;display:flex;align-items:flex-start;justify-content:flex-end;padding:12px;border:0;cursor:pointer;background:transparent}
+.ymap-cover span{padding:7px 11px;font:600 12px/1.2 var(--body);color:var(--paper);background:rgba(14,15,17,.84);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.ymap.live .ymap-cover{display:none}
+.ymap-chip{position:absolute;left:12px;bottom:12px;z-index:3;display:grid;gap:3px;max-width:calc(100% - 24px);padding:12px 14px;color:var(--paper);text-decoration:none;background:rgba(16,17,19,.92);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 8px 20px rgba(0,0,0,.4)}
+.ymap-chip b{font-family:var(--display);font-weight:600;font-size:18px;line-height:1;text-transform:uppercase}
+.ymap-chip span{font-size:13px;color:#c7cbcf}
+.ymap-chip em{display:inline-flex;align-items:center;gap:8px;margin-top:4px;font-style:normal;font-weight:600;font-size:13px;color:var(--lamp)}
+.ymap-chip em::after{content:"";width:7px;height:7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg)}
+@media (max-width:759px){ .ymap{aspect-ratio:auto;height:300px} }
+
+/* ===== Расчёт: шаги одной высоты, блок с ценой не растёт ===== */
+.qsum b{white-space:nowrap}
+@media (max-width:899px){
+  .qsum{flex-direction:column;align-items:flex-start;gap:4px;padding:12px 16px}
+  .qsum b{font-size:28px;line-height:1.05}
+  .opts .opt label{min-height:56px;padding:9px 12px;font-size:15px}
+  .classes .opt label{min-height:136px}
+}
+.lb{background:rgba(6,7,8,.985)}
+@media (max-width:899px){
+  .opts .opt label{font-size:14px}
+  .classes .opt label{min-height:146px}
+}
+@media (max-width:599px){ .qnav .btn{padding:0 calc(14px + var(--c)) 0 16px} }
+@media (max-width:899px){
+  .opts .opt label{font-size:13.5px;padding:9px 11px;min-height:54px}
+  .classes .opt label{min-height:164px}
+}
+
 .yw-frame{padding:0;min-height:0;background:#fff;overflow:hidden}
 .yw-frame iframe{height:640px}
