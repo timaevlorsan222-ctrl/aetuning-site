@@ -1118,37 +1118,40 @@ html.menu-open{overflow:hidden}
 .cf-cap h3{margin:0;font-size:clamp(22px,5.6vw,28px);line-height:1.05}
 .cf-cap p{margin:0;color:#b5babf;font-size:15px}
 
-/* Кузов: два примера листаются на телефоне */
-@media (max-width:639px){
-  .kz-cases{grid-auto-flow:column;grid-auto-columns:86%;grid-template-columns:none;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 calc(var(--gut) * -1);padding:0 var(--gut) 8px;scroll-padding-left:var(--gut);scrollbar-width:none}
-  .kz-cases::-webkit-scrollbar{display:none}
-  .kz-cases .case{scroll-snap-align:start}
-}
-
 /* Все услуги и цены: на телефоне без строки-подсказки, плитки короче */
 @media (max-width:639px){ .gtile .gprev{display:none} .gtile summary{min-height:0} }
 
-/* Студия: фото листаются на телефоне */
-@media (max-width:599px){
-  .lounge{grid-auto-flow:column;grid-auto-columns:84%;grid-template-columns:none;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 calc(var(--gut) * -1);padding:0 var(--gut) 6px;scroll-padding-left:var(--gut);scrollbar-width:none}
-  .lounge::-webkit-scrollbar{display:none}
-  .lounge figure,.l-main,.l-s{grid-column:auto;grid-row:auto;aspect-ratio:4/5;scroll-snap-align:start}
-}
-
-/* Сервис: карточки листаются на телефоне и планшете */
-@media (max-width:899px){
-  .xcards{grid-auto-flow:column;grid-auto-columns:78%;grid-template-columns:none;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 calc(var(--gut) * -1);padding:4px var(--gut) 10px;scroll-padding-left:var(--gut);scrollbar-width:none}
-  .xcards::-webkit-scrollbar{display:none}
-  .xcard,.xcard.xcta{scroll-snap-align:start;grid-template-columns:1fr;grid-template-areas:"ico" "name" "desc" "price";align-content:start;padding:20px 18px}
-  .xcard.xcta{grid-template-areas:"ico" "name" "desc" "xb"}
-  .xcard img.ico,.xcard.xcta img.ico{grid-row:auto;margin:0 0 6px}
-  .xcard{grid-template-rows:auto auto 1fr auto}
-  .xcard .xprice{margin-top:10px;align-self:end}
-}
-@media (min-width:600px) and (max-width:899px){ .xcards{grid-auto-columns:46%} }
-
 /* Подсказка «листайте» для рядов */
 .swipe-hint{display:none}
+
+/* Первый экран на телефоне: заголовок, текст и кнопки сразу видны, машины ниже */
+@media (max-width:899px){
+  .hero{padding-top:18px}
+  .hero .grid{grid-template-areas:"mark" "h1" "lead" "act" "vid" "meta"}
+  .hero h1{margin-top:6px}
+  .hero .lead{margin-top:14px;font-size:16px;line-height:1.5}
+  .hero .actions{margin-top:20px}
+  .hvid{margin-top:26px}
+  .hero .meta{margin-top:18px}
+}
+@media (max-width:599px){
+  .hero-mark{display:none}
+  .hero h1{margin-top:0}
+}
+
+/* Сервис на телефоне: компактная сетка в две колонки вместо длинного списка */
+@media (max-width:599px){
+  .xcards{grid-template-columns:1fr 1fr;gap:8px}
+  .xcard{grid-template-columns:1fr;grid-template-areas:"ico" "name" "desc" "price";grid-template-rows:auto auto 1fr auto;align-items:start;column-gap:0;padding:16px 14px}
+  .xcard img.ico{grid-row:auto;width:60px;height:45px;margin:0 0 6px}
+  .xcard h3{font-size:18px;line-height:1.08}
+  .xcard p{font-size:13px;line-height:1.4}
+  .xcard .xprice{align-self:end;margin-top:8px}
+  .xcard:nth-child(5){grid-column:1/-1;grid-template-columns:72px minmax(0,1fr);grid-template-areas:"ico name" "ico desc" "ico price";grid-template-rows:auto;column-gap:14px}
+  .xcard:nth-child(5) img.ico{grid-row:1/4;width:72px;height:54px}
+  .xcard.xcta{grid-column:1/-1;grid-template-columns:60px minmax(0,1fr);grid-template-areas:"ico name" "ico desc" "xb xb";grid-template-rows:auto;column-gap:14px}
+  .xcard.xcta img.ico{grid-row:1/3}
+}
 
 .yw-frame{padding:0;min-height:0;background:#fff;overflow:hidden}
 .yw-frame iframe{height:640px}
