@@ -90,7 +90,7 @@
     opts.querySelectorAll('input:checked').forEach(function(c){ s += +c.value; n++; if (!+c.value) z++; });
     sum.innerHTML = n ? (s ? P(s) : 'уточним') : '0\u00a0<span class="rub">₽</span>';
     document.getElementById('sum2').innerHTML = sum.innerHTML;
-    note.textContent = !n ? 'Отметьте хотя бы одну услугу' : z ? 'Ориентир без мойки: её цену назовём отдельно.' : 'Ориентир по минимальным ценам. Точную сумму назовём после осмотра.';
+    note.textContent = !n ? 'Отметьте хотя бы одну услугу' : z ? 'Примерная стоимость без мойки: её цену назовём отдельно.' : 'Это примерная стоимость. Итоговая зависит от состояния машины.';
     return n;
   }
   opts.addEventListener('change', recalc); recalc();
@@ -113,7 +113,7 @@
     show(step + 1);
   });
   back.addEventListener('click', function(){ show(step - 1); });
-  /* Класс машины: выбрали и сразу дальше. Услуги можно отметить несколько, поэтому там кнопка «Узнать точную цену» */
+  /* Класс машины: выбрали и сразу дальше. Услуги можно отметить несколько, поэтому там кнопка «Получить расчёт» */
   document.querySelectorAll('input[name=cls]').forEach(function(r){ r.addEventListener('click', function(){ setTimeout(function(){ if (step === 0) show(1); }, 260); }); });
   opts.addEventListener('change', function(){ if (step === 1) next.hidden = !recalc(); });
   var file = document.getElementById('photo'), files = document.getElementById('files');
