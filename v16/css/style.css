@@ -1111,6 +1111,7 @@ html.menu-open{overflow:hidden}
 }
 
 /* До и после в карусели */
+@media (max-width:599px){
 .cf-cases .case{position:relative;display:block;margin:0;overflow:hidden;background:#0d0e0f}
 .cf-cases .case .frame{position:absolute;inset:0;width:auto;height:auto;margin:0;aspect-ratio:auto}
 .cf-cases .case > h3,.cf-cases .case > .cap{display:none}
@@ -1119,6 +1120,7 @@ html.menu-open{overflow:hidden}
 .cf-cap .cf-num{font-size:12px;font-weight:600;letter-spacing:.14em;color:var(--mute)}
 .cf-cap h3{margin:0;font-size:clamp(22px,5.6vw,28px);line-height:1.05}
 .cf-cap p{margin:0;color:#b5babf;font-size:15px}
+}
 
 /* Все услуги и цены: на телефоне без строки-подсказки, плитки короче */
 @media (max-width:639px){ .gtile .gprev{display:none} .gtile summary{min-height:0} }
@@ -1258,26 +1260,11 @@ html.menu-open{overflow:hidden}
 
 /* ===== Версия 16 ===== */
 
-/* --- Черновик: переключатель вариантов первого экрана.
-   Телефон: маленькая плашка внизу, пока виден первый экран. Компьютер: строка под плашкой черновика --- */
-.hv-sw{position:fixed;right:10px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:30;display:flex;align-items:center;gap:5px;padding:6px 7px;background:rgba(16,17,19,.92);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 10px 30px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,255,255,.12);transition:opacity .3s,transform .3s}
-.hv-sw.off{opacity:0;transform:translateY(12px);pointer-events:none}
-.hv-sw > span{margin:0 3px 0 2px;font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#cfd3d7}
-.hv-sw button{min-width:34px;min-height:32px;padding:4px 8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:#e1e4e7;font:600 13px/1 var(--body);cursor:pointer}
-.hv-sw button i{display:none;font-style:normal}
-.hv-sw button[aria-pressed="true"]{background:#e9c46a;border-color:#e9c46a;color:#141414}
-@media (min-width:900px){
-  .hv-sw{position:static;justify-content:center;gap:6px;padding:6px var(--gut);background:rgba(0,0,0,.42);box-shadow:inset 0 -1px 0 rgba(255,255,255,.06);-webkit-backdrop-filter:none;backdrop-filter:none}
-  .hv-sw.off{opacity:1;transform:none;pointer-events:auto}
-  .hv-sw button{font-size:12px;padding:4px 11px}
-  .hv-sw button i{display:inline}
-}
-
 /* --- Первый экран: углы больше не срезаем ни в одном варианте --- */
 @media (min-width:900px){ .hvid{clip-path:none} }
 .hero-mark{position:relative;z-index:1}
 
-/* 1 · Фон: фото становится фоном первого экрана, текст поверх */
+/* Первый экран: фото — фон, текст поверх (выбран вариант 1 · Фон) */
 html[data-hv="1"] .hero{position:relative;isolation:isolate}
 html[data-hv="1"] .hvid{position:absolute;z-index:-1;margin:0;width:auto;max-height:none;aspect-ratio:auto;background:none;align-self:stretch;justify-self:stretch}
 html[data-hv="1"] .hvid::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none}
@@ -1298,53 +1285,6 @@ html[data-hv="1"] .hero h1,html[data-hv="1"] .hero .lead{text-shadow:0 2px 22px 
   html[data-hv="1"] .hvid::after{background:linear-gradient(180deg,rgba(10,11,13,.4) 0,rgba(10,11,13,0) 16%,rgba(10,11,13,0) 78%,rgba(10,11,13,.55) 100%)}
   html[data-hv="1"] .hs figcaption{left:auto;right:28px;bottom:28px}
   html[data-hv="1"] .hs-dots{top:14px;right:20px}
-}
-
-/* 2 · Рамка: фото в металлической раме на винтах, как вывеска в студии */
-html[data-hv="2"] .hvid{--bz:10px;background:linear-gradient(145deg,#6d7379 0%,#32363b 26%,#5a6066 50%,#25282c 76%,#4f555b 100%);box-shadow:0 28px 60px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.3),inset 0 -1px 0 rgba(0,0,0,.65)}
-html[data-hv="2"] .hvid .hs{inset:var(--bz)}
-html[data-hv="2"] .hvid .hs::after{content:"";position:absolute;inset:0;z-index:3;pointer-events:none;box-shadow:inset 0 0 0 1px rgba(0,0,0,.85),inset 0 3px 12px rgba(0,0,0,.55)}
-html[data-hv="2"] .hvid::before{content:"";position:absolute;inset:1px;z-index:4;pointer-events:none;
-  background:
-    radial-gradient(circle,#eef0f2 0 1.3px,#6b7177 1.9px,rgba(0,0,0,.65) 2.6px,transparent 3.3px) left top/8px 8px no-repeat,
-    radial-gradient(circle,#eef0f2 0 1.3px,#6b7177 1.9px,rgba(0,0,0,.65) 2.6px,transparent 3.3px) right top/8px 8px no-repeat,
-    radial-gradient(circle,#eef0f2 0 1.3px,#6b7177 1.9px,rgba(0,0,0,.65) 2.6px,transparent 3.3px) left bottom/8px 8px no-repeat,
-    radial-gradient(circle,#eef0f2 0 1.3px,#6b7177 1.9px,rgba(0,0,0,.65) 2.6px,transparent 3.3px) right bottom/8px 8px no-repeat}
-html[data-hv="2"] .hs-dots{top:calc(var(--bz) + 2px);right:calc(var(--bz) + 4px)}
-@media (max-width:899px){
-  html[data-hv="2"] .hvid{margin:24px 0 0;aspect-ratio:4/5}
-}
-@media (min-width:900px){
-  html[data-hv="2"] .hvid{--bz:12px;justify-self:end;width:min(100%,calc((100svh - 170px) * .8),560px);max-height:none;aspect-ratio:4/5}
-}
-
-/* 3 · Растворение: у фото нет краёв, оно уходит в фон страницы */
-html[data-hv="3"] .hvid{background:none}
-@media (max-width:899px){
-  html[data-hv="3"] .hvid{margin-top:4px;aspect-ratio:4/5;-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 15%,#000 78%,transparent 100%);mask-image:linear-gradient(180deg,transparent 0,#000 15%,#000 78%,transparent 100%)}
-  html[data-hv="3"] .hs figcaption{bottom:24%}
-  html[data-hv="3"] .hs-dots{top:12%}
-}
-@media (min-width:900px){
-  html[data-hv="3"] .hvid{align-self:stretch;width:auto;height:auto;max-height:none;aspect-ratio:auto;margin:-24px calc((min(100vw, var(--wrap)) - 100vw) / 2 - var(--gut)) -56px -60px;
-    -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 32%),linear-gradient(180deg,transparent 0,#000 13%,#000 85%,transparent 100%);-webkit-mask-composite:source-in;
-    mask-image:linear-gradient(90deg,transparent 0,#000 32%),linear-gradient(180deg,transparent 0,#000 13%,#000 85%,transparent 100%);mask-composite:intersect}
-  html[data-hv="3"] .hero .grid{min-height:min(calc(100svh - 120px),800px)}
-  html[data-hv="3"] .hs figcaption{left:auto;right:max(28px, calc((100vw - var(--wrap)) / 2 + 28px));bottom:17%}
-  html[data-hv="3"] .hs-dots{top:13%;right:max(20px, calc((100vw - var(--wrap)) / 2 + 20px))}
-}
-
-/* 4 · Пополам: правая половина экрана целиком под фото, ровные края */
-@media (max-width:899px){
-  html[data-hv="4"] .hvid{aspect-ratio:4/5}
-}
-@media (min-width:900px){
-  html[data-hv="4"] .hero{padding:0}
-  html[data-hv="4"] .hero .grid{min-height:min(calc(100svh - 110px),820px);column-gap:60px}
-  html[data-hv="4"] .hero .grid > :not(.hvid){position:relative;z-index:1}
-  html[data-hv="4"] .hvid{align-self:stretch;width:auto;height:auto;max-height:none;aspect-ratio:auto;margin:0 calc((min(100vw, var(--wrap)) - 100vw) / 2 - var(--gut)) 0 0;box-shadow:-1px 0 0 rgba(255,255,255,.12),-30px 0 60px rgba(0,0,0,.35)}
-  html[data-hv="4"] .hs figcaption{left:24px;bottom:24px}
-  html[data-hv="4"] .hs-dots{right:max(16px, calc((100vw - var(--wrap)) / 2 + 16px))}
 }
 
 /* --- Услуги: на телефоне карусель, на планшете и компьютере прежние строки --- */
@@ -1393,9 +1333,9 @@ html[data-hv="3"] .hvid{background:none}
 .rv-score .stars svg{width:20px;height:20px;fill:#e9c46a}
 .rv-score small{display:block;margin-top:6px;color:var(--mute);font-size:13px;line-height:1.35}
 .rv-sum .yw-btns{margin:0}
-.rv-row{display:grid;grid-auto-flow:column;grid-auto-columns:min(84%,340px);gap:12px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;margin:0 calc(var(--gut) * -1);padding:6px var(--gut) 18px;scroll-padding-left:var(--gut);scrollbar-width:none}
+.rv-row{display:grid;grid-auto-flow:column;grid-auto-columns:min(84%,340px);gap:12px;overflow-x:auto;overscroll-behavior-x:contain;margin:0 calc(var(--gut) * -1);padding:6px var(--gut) 18px;scroll-padding-left:var(--gut);scrollbar-width:none}
 .rv-row::-webkit-scrollbar{display:none}
-.rv{scroll-snap-align:start;display:flex;flex-direction:column;gap:14px;min-height:300px;padding:20px 20px 16px;background:linear-gradient(160deg,rgba(255,255,255,.085),rgba(255,255,255,.02) 45%,rgba(0,0,0,.22));box-shadow:inset 0 1px 0 rgba(255,255,255,.1),inset 0 -1px 0 rgba(0,0,0,.55);clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,0 100%)}
+.rv{display:flex;flex-direction:column;gap:14px;min-height:300px;padding:20px 20px 16px;background:linear-gradient(160deg,rgba(255,255,255,.085),rgba(255,255,255,.02) 45%,rgba(0,0,0,.22));box-shadow:inset 0 1px 0 rgba(255,255,255,.1),inset 0 -1px 0 rgba(0,0,0,.55);clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,0 100%)}
 .rv-h{display:flex;align-items:center;gap:12px}
 .rv-ava{display:grid;place-items:center;flex:none;width:44px;height:44px;border-radius:50%;font:600 19px/1 var(--display);color:#151515;background:linear-gradient(180deg,#f3f5f6,#b8bec4 46%,#e6e9eb 54%,#a3aab1);box-shadow:0 4px 10px rgba(0,0,0,.4)}
 .rv-who{min-width:0}
@@ -1412,12 +1352,25 @@ html[data-hv="3"] .hvid{background:none}
 .rv-f a{color:var(--lamp);font-weight:600;text-decoration:none;white-space:nowrap}
 .rv-f a:hover{text-decoration:underline;text-underline-offset:3px}
 .rv-note{margin-top:4px;font-size:13px;line-height:1.5}
-.rv-nav{display:none;gap:8px}
-.rv-nav .cf-arr:disabled{opacity:.3}
 @media (min-width:900px){
   .rv-top{grid-template-columns:minmax(0,1fr) auto;align-items:end}
   .rv-row{grid-auto-columns:calc((100% - 2 * var(--gut) - 24px) / 3.25)}
-  .rv-nav{display:flex;justify-content:flex-end;margin-top:4px}
+}
+
+@media (prefers-reduced-motion:reduce){ .rv-row{scroll-snap-type:x mandatory} .rv{scroll-snap-align:start} }
+
+/* --- До и после: на планшете и компьютере сетка, как раньше; карусель только на телефоне --- */
+@media (min-width:600px){
+  .cf-cases{margin:0}
+  .cf-cases .cf-view{overflow:visible;-webkit-mask-image:none;mask-image:none;height:auto !important;touch-action:auto}
+  .cf-cases .cf-track{position:static;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:36px 28px;align-items:start;width:auto;height:auto;transform:none !important;transition:none;will-change:auto}
+  .cf-cases .cf-track > *{width:auto !important;height:auto !important;filter:none !important;box-shadow:none !important;transition:none;cursor:auto}
+  .cf-cases .cf-nav{display:none}
+  .cf-cases .case{display:flex;flex-direction:column}
+}
+@media (min-width:1000px){
+  .cf-cases .cf-track{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .cf-cases .case h3{font-size:clamp(22px,2.2vw,28px)}
 }
 
 /* --- Клиентская зона: два фото --- */

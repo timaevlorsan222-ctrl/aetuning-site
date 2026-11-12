@@ -195,10 +195,7 @@
       d:['Оклейка кузова целиком цветным полиуретаном','Капот из настоящего карбона']},
     gts: {t:'Porsche Cayenne GTS', s:'Затонировали фары и задние фонари плёнкой.', q:[3],
       ph:[['gts_rear','Porsche Cayenne GTS сзади: затонированные фонари'],['gts_front','Porsche Cayenne GTS спереди: затонированные фары']],
-      d:['Тонировка фар','Тонировка задних фонарей']},
-    rr: {t:'Range Rover', s:'Приехал в слое дорожной пыли — уехал чистым и блестящим.', q:[0],
-      ph:[['rr_rear_a','Range Rover сзади после мойки'],['rr_rear_b','Range Rover сзади до мойки: кузов в дорожной пыли'],['rr_side_a','Бок после мойки: кузов и пороги блестят'],['rr_side_b','Бок до мойки']],
-      d:['Детейлинг-мойка кузова','Мойка дисков, порогов и арок']}
+      d:['Тонировка фар','Тонировка задних фонарей']}
   };
   var carDlg = document.getElementById('carDlg'), gal = document.getElementById('carGal'), curCar = null;
   var cPrev = document.getElementById('carPrev'), cNext = document.getElementById('carNext'), cCnt = document.getElementById('carCnt');
@@ -345,9 +342,10 @@
       if (!live()) {
         all.forEach(function(c){ c.classList.remove('on'); c.style.width = ''; c.style.height = ''; c.removeAttribute('inert'); });
         track.style.transform = ''; track.style.gap = ''; view.style.height = ''; nav.hidden = true;
+        if (cfg.cap) cfg.cap.hidden = true;
         if (cfg.change) cfg.change(null); return;
       }
-      nav.hidden = false;
+      nav.hidden = false; if (cfg.cap) cfg.cap.hidden = false;
       var v = vis(), W = view.clientWidth, s = cfg.size(W), x = 0;
       v.forEach(function(c, k){
         var on = k === act;
@@ -435,12 +433,12 @@
 
   /* До и после: вкладки Кузов / Салон / Мотор и шумка, внутри карусель */
   var chips = document.querySelectorAll('.wchips button'), cases = document.querySelectorAll('#raboty .case');
-  var cfCasesRoot = document.querySelector('.cf-cases'), cfCases = null;
+  var cfCasesRoot = document.querySelector('.cf-cases'), cfCases = null, casesMQ = window.matchMedia('(max-width:599px)'), curCat = 'kuzov';
   if (cfCasesRoot) {
     var cap = document.createElement('div'); cap.className = 'cf-cap'; cap.setAttribute('aria-live', 'polite');
     cap.innerHTML = '<span class="cf-num"></span><h3></h3><p></p>';
     cfCases = makeCF(cfCasesRoot, {
-      cap: cap,
+      cap: cap, active: function(){ return casesMQ.matches; }, mq: casesMQ,
       size: function(W){
         var wa, r = 8 / 9;
         if (W < 600) { wa = Math.round(W * .84); return {wa: wa, ha: Math.round(wa * r), wn: Math.round(wa * .3), hn: Math.round(wa * r * .8), gap: 8}; }
@@ -454,11 +452,22 @@
       }
     });
   }
+  /* На телефоне все работы вкладки в карусели; на планшете и компьютере сетка: 4 или 6 штук и кнопка «Показать ещё» */
   function setCat(c){
+    curCat = c;
     chips.forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.cat === c ? 'true' : 'false'); });
-    cases.forEach(function(el){ el.hidden = el.dataset.cat !== c; });
+    var lim = window.matchMedia('(min-width:900px)').matches ? 6 : 4, k = 0, extra = 0, total = 0;
+    cases.forEach(function(el){ if (el.dataset.cat === c) total++; });
+    if (casesMQ.matches || total <= lim + 1) lim = total;
+    cases.forEach(function(el){ var inCat = el.dataset.cat === c; if (inCat) k++; el.hidden = !inCat || k > lim; if (inCat && k > lim) extra++; });
+    var wm = document.getElementById('wMore'); if (wm) { wm.hidden = !extra; wm.textContent = 'Показать ещё ' + extra; }
     if (cfCases) cfCases.reset();
   }
+  (function(){
+    var wm = document.getElementById('wMore'); if (!wm) return;
+    wm.addEventListener('click', function(){ cases.forEach(function(el){ if (el.dataset.cat === curCat) el.hidden = false; }); wm.hidden = true; if (cfCases) cfCases.reset(); });
+    if (casesMQ.addEventListener) casesMQ.addEventListener('change', function(){ setCat(curCat); });
+  })();
 
   /* ===== Меню ===== */
   var menu = document.getElementById('menu'), burger = document.querySelector('.burger');
@@ -600,7 +609,7 @@
     } else loadMap();
   }
   chips.forEach(function(b){ b.addEventListener('click', function(){ setCat(b.dataset.cat); }); });
-  setCat('moyka');
+  setCat('kuzov');
   document.querySelectorAll('[data-calc]').forEach(function(a){
     a.addEventListener('click', function(){ var b = document.getElementById('o' + a.dataset.calc); if (b && !b.checked) { b.checked = true; recalc(); } });
   });
@@ -687,30 +696,33 @@
   })();
 
 
-  /* Отзывы: стрелки листают ряд карточек */
+  /* Отзывы: лента медленно и непрерывно едет по кругу. Пальцем можно листать, потом лента продолжает сама */
   (function(){
-    var row = document.querySelector('.rv-row'); if (!row) return;
-    var b = document.querySelectorAll('.rv-nav button');
-    var step = function(){ var c = row.children[0]; return c ? c.offsetWidth + 12 : 300; };
-    var st = function(){ b[0].disabled = row.scrollLeft <= 2; b[1].disabled = row.scrollLeft >= row.scrollWidth - row.clientWidth - 2; };
-    b[0].addEventListener('click', function(){ row.scrollBy({left: -step(), behavior: reduce ? 'auto' : 'smooth'}); });
-    b[1].addEventListener('click', function(){ row.scrollBy({left: step(), behavior: reduce ? 'auto' : 'smooth'}); });
-    row.addEventListener('scroll', st, {passive: true}); window.addEventListener('resize', st); st();
-  })();
-
-  /* Черновик: варианты первого экрана (1 · Фон, 2 · Рамка, 3 · Растворение, 4 · Пополам) */
-  (function(){
-    var root = document.documentElement, bs = document.querySelectorAll('.hv-sw button');
-    var mark = function(){ bs.forEach(function(x){ x.setAttribute('aria-pressed', x.dataset.hv === root.getAttribute('data-hv') ? 'true' : 'false'); }); };
-    bs.forEach(function(x){ x.addEventListener('click', function(){
-      root.setAttribute('data-hv', x.dataset.hv); mark();
-      try { localStorage.setItem('ae-hv', x.dataset.hv); } catch (e) {}
-      try { var u = new URL(location.href); u.searchParams.set('hero', x.dataset.hv); history.replaceState(null, '', u); } catch (e) {}
-      window.dispatchEvent(new Event('resize'));
-    }); });
-    mark();
-    var sw = document.querySelector('.hv-sw');
-    if (sw) { var swS = function(){ sw.classList.toggle('off', window.scrollY > window.innerHeight * 0.9); }; window.addEventListener('scroll', swS, {passive: true}); swS(); }
+    var row = document.querySelector('.rv-row'); if (!row || reduce) return;
+    var orig = [].slice.call(row.children);
+    orig.forEach(function(c){ var k = c.cloneNode(true); k.setAttribute('aria-hidden', 'true'); k.setAttribute('inert', ''); k.classList.add('rv-clone'); row.appendChild(k); });
+    var pos = 0, last = null, pause = 0, vis = true, SPEED = 0.032;
+    var half = function(){ var a = row.children[orig.length]; return a ? a.offsetLeft - row.children[0].offsetLeft : 0; };
+    var hold = function(ms){ pause = Math.max(pause, performance.now() + ms); };
+    ['pointerdown', 'touchstart', 'wheel'].forEach(function(ev){ row.addEventListener(ev, function(){ hold(3500); }, {passive: true}); });
+    row.addEventListener('touchend', function(){ hold(2500); }, {passive: true});
+    row.addEventListener('pointerenter', function(e){ if (e.pointerType === 'mouse') pause = Infinity; });
+    row.addEventListener('pointerleave', function(e){ if (e.pointerType === 'mouse') { pause = 0; hold(400); } });
+    if ('IntersectionObserver' in window) new IntersectionObserver(function(es){ vis = es[0].isIntersecting; }).observe(row);
+    (function tick(ts){
+      if (last !== null) {
+        var H = half();
+        if (ts > pause && vis && H > 0) {
+          pos += (ts - last) * SPEED;
+          if (pos >= H) pos -= H;
+          row.scrollLeft = pos;
+        } else {
+          pos = row.scrollLeft;
+          if (H > 0 && pos >= H) { pos -= H; row.scrollLeft = pos; }
+        }
+      }
+      last = ts; requestAnimationFrame(tick);
+    })(performance.now());
   })();
 
   /* Не оставляем одно слово на последней строке абзаца */
