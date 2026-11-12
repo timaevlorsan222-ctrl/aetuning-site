@@ -476,6 +476,7 @@
       burger.setAttribute('aria-expanded', open ? 'true' : 'false');
       burger.querySelector('.bt').textContent = open ? 'Закрыть' : 'Меню';
       if (open) {
+        var tb = document.querySelector('.top'); if (tb) menu.style.top = Math.max(0, Math.round(tb.getBoundingClientRect().bottom)) + 'px';
         menu.hidden = false; document.documentElement.classList.add('menu-open');
         requestAnimationFrame(function(){ requestAnimationFrame(function(){ menu.classList.add('open'); }); });
       } else {
@@ -484,6 +485,9 @@
       }
     };
     burger.addEventListener('click', function(){ setMenu(burger.getAttribute('aria-expanded') !== 'true'); });
+    var topLogo = document.querySelector('.top a[href="#top"]');
+    if (topLogo) topLogo.addEventListener('click', function(){ if (burger.getAttribute('aria-expanded') === 'true') setMenu(false); });
+    window.addEventListener('resize', function(){ if (menu.classList.contains('open')) { var tb = document.querySelector('.top'); if (tb) menu.style.top = Math.max(0, Math.round(tb.getBoundingClientRect().bottom)) + 'px'; } });
     menu.addEventListener('click', function(e){ if (e.target.closest('.menu-list a')) setMenu(false); });
     document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && menu.classList.contains('open')) setMenu(false); });
     /* подсвечиваем раздел, который сейчас на экране */
@@ -524,87 +528,20 @@
     lb.addEventListener('touchend', function(e){ if (lx === null) return; var dx = e.changedTouches[0].clientX - lx; if (Math.abs(dx) > 40) lbShow(lbI + (dx < 0 ? 1 : -1)); lx = null; }, {passive: true});
   }
 
-  /* ===== Карта: своя тёмная, грузится, только когда блок контактов близко ===== */
+  /* ===== Карта: Яндекс Карты, грузятся, когда блок контактов близко ===== */
   var mapBox = document.getElementById('aeMapBox');
   if (mapBox) {
-    var MAPLIB = '../vendor/maplibre/';
-    var MAP_STYLE = {
-  "version": 8,
-  "glyphs": "https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf",
-  "sources": { "omt": { "type": "vector", "url": "https://tiles.openfreemap.org/planet" } },
-  "layers": [
-    { "id": "bg", "type": "background", "paint": { "background-color": "#16181a" } },
-    { "id": "landuse", "type": "fill", "source": "omt", "source-layer": "landuse",
-      "filter": ["in", ["get", "class"], ["literal", ["residential", "suburb", "neighbourhood", "commercial", "industrial", "retail", "garages"]]],
-      "paint": { "fill-color": "#1a1c1f" } },
-    { "id": "green", "type": "fill", "source": "omt", "source-layer": "landcover",
-      "filter": ["in", ["get", "class"], ["literal", ["wood", "grass", "farmland", "scrub", "wetland"]]],
-      "paint": { "fill-color": "#1a1f1d" } },
-    { "id": "park", "type": "fill", "source": "omt", "source-layer": "park", "paint": { "fill-color": "#1a1f1d" } },
-    { "id": "water", "type": "fill", "source": "omt", "source-layer": "water", "paint": { "fill-color": "#0e1216" } },
-    { "id": "waterway", "type": "line", "source": "omt", "source-layer": "waterway",
-      "paint": { "line-color": "#1c232a", "line-width": ["interpolate", ["linear"], ["zoom"], 12, 0.8, 17, 3] } },
-    { "id": "building", "type": "fill", "source": "omt", "source-layer": "building", "minzoom": 13,
-      "paint": { "fill-color": "#202327", "fill-outline-color": "#2c3035" } },
-    { "id": "rail", "type": "line", "source": "omt", "source-layer": "transportation",
-      "filter": ["==", ["get", "class"], "rail"],
-      "paint": { "line-color": "#30353b", "line-width": 1.2, "line-dasharray": [3, 3] } },
-    { "id": "road-minor", "type": "line", "source": "omt", "source-layer": "transportation",
-      "filter": ["in", ["get", "class"], ["literal", ["minor", "service", "track"]]],
-      "layout": { "line-cap": "round", "line-join": "round" },
-      "paint": { "line-color": "#2a2e33", "line-width": ["interpolate", ["exponential", 1.5], ["zoom"], 12, 0.5, 14, 1.4, 17, 7] } },
-    { "id": "road-major-case", "type": "line", "source": "omt", "source-layer": "transportation",
-      "filter": ["in", ["get", "class"], ["literal", ["primary", "secondary", "tertiary", "trunk", "motorway"]]],
-      "layout": { "line-cap": "round", "line-join": "round" },
-      "paint": { "line-color": "#0d0f11", "line-width": ["interpolate", ["exponential", 1.5], ["zoom"], 10, 1.6, 14, 6, 17, 18] } },
-    { "id": "road-major", "type": "line", "source": "omt", "source-layer": "transportation",
-      "filter": ["in", ["get", "class"], ["literal", ["primary", "secondary", "tertiary"]]],
-      "layout": { "line-cap": "round", "line-join": "round" },
-      "paint": { "line-color": "#3c4249", "line-width": ["interpolate", ["exponential", 1.5], ["zoom"], 10, 0.8, 14, 3.6, 17, 13] } },
-    { "id": "road-trunk", "type": "line", "source": "omt", "source-layer": "transportation",
-      "filter": ["in", ["get", "class"], ["literal", ["trunk", "motorway"]]],
-      "layout": { "line-cap": "round", "line-join": "round" },
-      "paint": { "line-color": "#5a6269", "line-width": ["interpolate", ["exponential", 1.5], ["zoom"], 10, 1, 14, 4.2, 17, 15] } },
-    { "id": "road-label", "type": "symbol", "source": "omt", "source-layer": "transportation_name", "minzoom": 13,
-      "filter": ["in", ["get", "class"], ["literal", ["primary", "secondary", "tertiary", "trunk", "motorway", "minor"]]],
-      "layout": { "symbol-placement": "line", "text-field": ["coalesce", ["get", "name:ru"], ["get", "name"]], "text-font": ["Noto Sans Regular"],
-                  "text-size": ["interpolate", ["linear"], ["zoom"], 13, 10, 17, 13], "text-letter-spacing": 0.04 },
-      "paint": { "text-color": "#8d959d", "text-halo-color": "#16181a", "text-halo-width": 1.4 } },
-    { "id": "place-label", "type": "symbol", "source": "omt", "source-layer": "place",
-      "filter": ["in", ["get", "class"], ["literal", ["suburb", "neighbourhood", "quarter", "village", "hamlet", "town"]]],
-      "layout": { "text-field": ["coalesce", ["get", "name:ru"], ["get", "name"]], "text-font": ["Noto Sans Regular"], "text-size": 12,
-                  "text-transform": "uppercase", "text-letter-spacing": 0.14 },
-      "paint": { "text-color": "#6c747c", "text-halo-color": "#16181a", "text-halo-width": 1.2 } }
-  ]
-};
-    var AE = [30.293096, 60.067030];
-    var initMap = function(){
-      try {
-        var map = new maplibregl.Map({
-          container: 'aeMap', style: MAP_STYLE, center: AE, zoom: 15.2, minZoom: 10, maxZoom: 18,
-          attributionControl: {compact: true}, cooperativeGestures: true, dragRotate: false, pitchWithRotate: false, touchPitch: false,
-          locale: {
-            'CooperativeGesturesHandler.WindowsHelpText': 'Чтобы приблизить карту, крутите колесо с зажатым Ctrl',
-            'CooperativeGesturesHandler.MacHelpText': 'Чтобы приблизить карту, крутите колесо с зажатой ⌘',
-            'CooperativeGesturesHandler.MobileHelpText': 'Двигайте карту двумя пальцами',
-            'NavigationControl.ZoomIn': 'Приблизить', 'NavigationControl.ZoomOut': 'Отдалить'
-          }
-        });
-        map.touchZoomRotate.disableRotation();
-        map.addControl(new maplibregl.NavigationControl({showCompass: false}), 'top-right');
-        var pin = document.createElement('div'); pin.className = 'ae-pin';
-        pin.innerHTML = '<svg viewBox="1030 595 820 325" aria-hidden="true"><use href="#aeG" fill="#111"/></svg>';
-        new maplibregl.Marker({element: pin, anchor: 'center'}).setLngLat(AE).addTo(map);
-        map.on('load', function(){ mapBox.classList.add('ready'); });
-      } catch (e) {}
-    };
     var loadMap = function(){
       if (loadMap.done) return; loadMap.done = true;
-      var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = MAPLIB + 'maplibre-gl.css'; document.head.appendChild(l);
-      var sc = document.createElement('script'); sc.src = MAPLIB + 'maplibre-gl.js'; sc.onload = initMap; document.head.appendChild(sc);
+      var f = document.createElement('iframe');
+      f.src = 'https://yandex.ru/map-widget/v1/?ll=30.293096%2C60.067030&z=16&pt=30.293096%2C60.067030%2Cpm2rdm';
+      f.title = 'Карта: AE Tuning, Выборгское шоссе, 200Б';
+      f.setAttribute('allowfullscreen', '');
+      f.addEventListener('load', function(){ mapBox.classList.add('ready'); });
+      document.getElementById('aeMap').appendChild(f);
     };
     if ('IntersectionObserver' in window) {
-      var mio = new IntersectionObserver(function(es){ if (es[0].isIntersecting) { loadMap(); mio.disconnect(); } }, {rootMargin: '900px 0px'});
+      var mio = new IntersectionObserver(function(es){ if (es[0].isIntersecting) { loadMap(); mio.disconnect(); } }, {rootMargin: '1400px 0px'});
       mio.observe(mapBox);
     } else loadMap();
   }
@@ -700,7 +637,8 @@
   (function(){
     var row = document.querySelector('.rv-row'); if (!row || reduce) return;
     var orig = [].slice.call(row.children);
-    orig.forEach(function(c){ var k = c.cloneNode(true); k.setAttribute('aria-hidden', 'true'); k.setAttribute('inert', ''); k.classList.add('rv-clone'); row.appendChild(k); });
+    orig.forEach(function(c){ var k = c.cloneNode(true); k.setAttribute('aria-hidden', 'true'); k.setAttribute('inert', ''); k.classList.add('rv-clone'); k.querySelectorAll('[data-lb]').forEach(function(x){ x.removeAttribute('data-lb'); }); row.appendChild(k); });
+    var lbBox = document.getElementById('lbDlg');
     var pos = 0, last = null, pause = 0, vis = true, SPEED = 0.032;
     var half = function(){ var a = row.children[orig.length]; return a ? a.offsetLeft - row.children[0].offsetLeft : 0; };
     var hold = function(ms){ pause = Math.max(pause, performance.now() + ms); };
@@ -712,7 +650,7 @@
     (function tick(ts){
       if (last !== null) {
         var H = half();
-        if (ts > pause && vis && H > 0) {
+        if (ts > pause && vis && H > 0 && !(lbBox && lbBox.open)) {
           pos += (ts - last) * SPEED;
           if (pos >= H) pos -= H;
           row.scrollLeft = pos;
