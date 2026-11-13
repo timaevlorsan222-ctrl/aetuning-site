@@ -1319,6 +1319,20 @@ html[data-hv="1"] .hero h1,html[data-hv="1"] .hero .lead{text-shadow:0 2px 22px 
 /* --- Контакты: на планшете в одну колонку, заголовок не обрезается --- */
 @media (max-width:999px){ .contact .grid{grid-template-columns:1fr} }
 
+/* --- Все услуги и цены: переключатель класса машины, подзаголовки внутри групп --- */
+.cls-sw{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 18px}
+.cls-l{grid-column:1/-1;font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.cls-sw button{display:flex;align-items:center;gap:9px;min-height:46px;padding:8px 12px;border:0;cursor:pointer;text-align:left;font:600 13.5px/1.2 var(--body);color:#dfe3e6;background:linear-gradient(180deg,#2a2e33,#1d2024);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),inset 0 0 0 1px rgba(255,255,255,.07)}
+.cls-sw button b{display:grid;place-items:center;flex:none;width:24px;height:24px;font:600 14px/1 var(--display);color:#151515;background:linear-gradient(180deg,#f3f5f6,#b8bec4 46%,#e6e9eb 54%,#a3aab1)}
+.cls-sw button[aria-pressed="true"]{color:#141414;background:linear-gradient(180deg,#f4f6f7,#c9ced3 48%,#e9ecee 52%,#b4bbc1);box-shadow:0 8px 20px rgba(0,0,0,.35)}
+.cls-sw button[aria-pressed="true"] b{color:#f2f2f2;background:#1b1d20}
+@media (min-width:760px){ .cls-sw{grid-template-columns:auto repeat(4,minmax(0,1fr));align-items:center} .cls-l{grid-column:auto;margin-right:6px} }
+.gtile li.gsub{display:block;margin:14px 0 2px;padding:0;border:0;box-shadow:none;font-size:11.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#e9c46a}
+.gtile li.gsub:first-child{margin-top:4px}
+.gtile li.gnote{display:block;padding-top:12px;font-size:13.5px;line-height:1.5;color:var(--mute)}
+.gtile li .cp{white-space:nowrap}
+.gtiles{align-items:start}
+
 /* --- Все услуги и цены: семь групп, последняя на всю ширину --- */
 @media (min-width:640px){ .gtiles .gtile:last-child{grid-column:1/-1} }
 .gtile .gprice .todo{font-family:var(--body);font-size:14px;font-weight:600}
